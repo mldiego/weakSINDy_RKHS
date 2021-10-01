@@ -1,6 +1,6 @@
 tic
 
-% Code by Joel A. Rosenfeld%Plot 2D Approximations
+% Code by Joel A. Rosenfeld
 % Cite https://arxiv.org/pdf/1909.11792.pdf if used.
 
 %% Start with trajectory information. This is contained in the matrix W
@@ -15,7 +15,7 @@ tic
         W = squeeze(W(:,:,1:1:end));
         h = h;    % h is the step size.
 
-        W = W(:,1:5001); % Subselect from the data
+        W = W(:,1:1201); % Subselect from the data
         mu = 20^2/3;
     elseif(WhichData == 2)
         load('DuffingOscillator');
@@ -148,5 +148,20 @@ tic
 %% Find the weights. Try LASSO here instead of PINV to see the sparse identification.
 
     Weights = pinv(BigMatrix)*EvalMatrix;
+    
+    % LASSO
+    [U,S,V] = svd(BigMatrix);
+    
+    rankme = 20;
+    
+    invS = zeros(size(S));
+    
+    for i=1:length(diag(S))
+        if S(i,i) ~= 0
+            invS(i,i) = 1/S(i,i);
+        end
+    end
+    
+    Weights_lasso = V(:,1:rankme)*invS(1:rankme,1:rankme)*U(:,1:rankme)'*EvalMatrix;
 
 toc

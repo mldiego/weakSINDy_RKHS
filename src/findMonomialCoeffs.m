@@ -1,6 +1,16 @@
-tic
+function [Weights, total_time] = findMonomialCoeffs(data,mdata,h,mu,PolyDegree)
+%% weights = findMonomialCoeffs(data, mu, h)
+% 
+% data = containsthe data from the system to identify (W)
+% mdata = max data samples to use
+% h = step size of data collected
+% mu = parameter
+% polyDegree = max degree of polynomial to use
 
-% Code by Joel A. Rosenfeld%Plot 2D Approximations
+total_time = tic;
+
+% Function based on code released from Dr. Joel Rosenfeld:
+% Repository link: 
 % Cite https://arxiv.org/pdf/1909.11792.pdf if used.
 
 %% Start with trajectory information. This is contained in the matrix W
@@ -8,21 +18,14 @@ tic
     % Dimension of the system is the number of rows of W.
     % Number of timesteps is the number of columns.
 
-    WhichData = 1;
-    
-    if(WhichData == 1)
-        load('LorenzSingleTrajectory');
+    %  W is automatically loaded here
+    load(data);
+    if length(size(W)) > 2
         W = squeeze(W(:,:,1:1:end));
-        h = h;    % h is the step size.
-
-        W = W(:,1:5001); % Subselect from the data
-        mu = 20^2/3;
-    elseif(WhichData == 2)
-        load('DuffingOscillator');
-        h = 0.01;    % h is the step size.
-
-        %W = W(:,1:1201); % Subselect from the data
-        mu = 2;
+    end
+    
+    if length(W) > mdata
+        W = W(:,1:1:mdata);
     end
 
 %% Integration Bits
@@ -43,9 +46,7 @@ tic
 %% Make a Basis Set
 
     Dimension = length(W(:,1));
-    
-    PolyDegree = 3;
-    
+        
     PrimesForTricks = primes(2^(PolyDegree+1)); % Between n and 2n there is always a new prime. So we have at least PolyDegree primes here.
     
     MonomialBasis = @(x) x.^(0:PolyDegree)'; % Note each row of the ultimate matrix will be a basis function.
@@ -149,4 +150,6 @@ tic
 
     Weights = pinv(BigMatrix)*EvalMatrix;
 
-toc
+total_time = toc(total_time);
+end
+
