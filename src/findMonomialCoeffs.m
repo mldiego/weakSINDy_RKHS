@@ -23,7 +23,8 @@ total_time = tic;
     if length(size(W)) > 2
         W = squeeze(W(:,:,1:1:end));
     end
-    
+    sz = size(W);
+    W = reshape(W,min(sz),max(sz));
     if length(W) > mdata
         W = W(:,1:1:mdata);
     end
